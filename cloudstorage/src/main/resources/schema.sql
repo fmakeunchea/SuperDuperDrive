@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS USERS (
   lastname VARCHAR(20)
 );
 
-CREATE TABLE IF NOT EXISTS NOTES (
+CREATE TABLE IF NOT EXISTS NOTES(
     noteid INT PRIMARY KEY auto_increment,
     notetitle VARCHAR(20),
     notedescription VARCHAR (1000),
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS FILES (
     foreign key (userid) references USERS(userid)
 );
 
-CREATE TABLE IF NOT EXISTS CREDENTIALS (
+CREATE TABLE IF NOT EXISTS CREDENTIALS(
     credentialid INT PRIMARY KEY auto_increment,
     url VARCHAR(100),
     username VARCHAR (30),

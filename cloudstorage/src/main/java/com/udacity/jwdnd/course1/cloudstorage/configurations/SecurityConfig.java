@@ -1,6 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.configurations;
 
 import com.udacity.jwdnd.course1.cloudstorage.services.AuthenticationService;
+import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,14 +11,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
+    private EncryptionService encryptionService;
 
-    public SecurityConfig(AuthenticationService authenticationService) {
+    public SecurityConfig(AuthenticationService authenticationService, EncryptionService encryptionService){
         this.authenticationService = authenticationService;
+        this.encryptionService = encryptionService;
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(this.authenticationService);
     }
 
@@ -26,12 +29,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/signup", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated();
-
         http.formLogin()
                 .loginPage("/login")
+                .failureUrl("/login?error")
+                .defaultSuccessUrl("/home", true)
+                .permitAll()
+                .and()
+                .logout()
+                .logoutSuccessUrl("/login?logout")
                 .permitAll();
-
-        http.formLogin()
-                .defaultSuccessUrl("/home", true);
     }
 }
