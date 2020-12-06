@@ -157,7 +157,8 @@
                                                 data-key=${credential.key},
                                                 data-p=${enS.decryptPassword(credential)}"
                                         th:onclick="showCredentialModal(this.getAttribute('data-id'), this.getAttribute('data-url'),
-                                                    this.getAttribute('data-username'), this.getAttribute('data-p'))">Edit</button>
+                                                    this.getAttribute('data-username'),
+                                                    this.getAttribute('data-p'))">Edit</button>
                                 <a id="credential-delete-btn" th:href="@{/credential/delete/(credentialId=${credential.credentialId})}" class="btn btn-danger">Delete</a>
                             </td>
                             <th id="credential-display-url" scope="row" th:text="${credential.url}"></th>
@@ -215,7 +216,7 @@
 
 <!--For opening the note modal-->
 <script type="text/javascript">
-            // For opening the note modal
+            //For opening the note modal
             function showNoteModal(noteId, noteTitle, noteDescription) {
                 $('#note-id').val(noteId ? noteId : '');
                 $('#note-title').val(noteTitle ? noteTitle : '');
