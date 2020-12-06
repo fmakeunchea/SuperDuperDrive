@@ -21,4 +21,19 @@ public class FileForm {
     public FileForm() {
     }
 
+    public MultipartFile getFileEntity() {
+        return fileEntity;
+    }
+
+    public void setFileEntity(MultipartFile fileEntity) {
+        this.fileEntity = fileEntity;
+    }
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
 }

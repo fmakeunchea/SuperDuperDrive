@@ -29,7 +29,7 @@ public class NoteController {
 
     @PutMapping("/add")
     public String postNote(NoteForm noteForm, Model model, HttpSession session){
-       // log.debug(TAG_ + "-> add method");
+        //log.debug(TAG_ + "-> add method");
 
         int userId = (int)session.getAttribute("userId");
         String errorMsgstr = "";
@@ -41,7 +41,7 @@ public class NoteController {
               //  log.debug(TAG_ +  "-> add new note success");
                 model.addAttribute("successResult", true);
             }else{
-               // log.debug(TAG_ +  "-> add new note failed");
+               //log.debug(TAG_ +  "-> add new note failed");
                 model.addAttribute("errorResult", true);
                 errorMsgstr = "New note failed to add";
                 model.addAttribute("errorResultMessage", errorMsgstr);
