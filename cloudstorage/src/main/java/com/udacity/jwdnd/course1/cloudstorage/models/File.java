@@ -1,56 +1,30 @@
 package com.udacity.jwdnd.course1.cloudstorage.models;
 
-import lombok.Data;
-import lombok.ToString;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-
-@Data
-@ToString(includeFieldNames = true)
 public class File {
-    private int fileId;
+    private Integer fileid;
     private String filename;
-    private String contentType;
-    private String fileSize;
-    private int userId;
-    private byte[] fileData;
+    private String contenttype;
+    private String filesize;
+    private Integer userid;
+    private byte[] filedata;
 
-    public File(String filename, String contentType, String filesize, int userId, byte[] fileData) {
+    public File(Integer fileid, String filename, String contenttype, String filesize, Integer userid,
+                 byte[] filedata) {
+        super();
+        this.fileid = fileid;
         this.filename = filename;
-        this.contentType = contentType;
-        this.fileSize = filesize;
-        this.userId = userId;
-        this.fileData = fileData;
-    }
-    public File() {
-    }
-    public File(MultipartFile fileUpload, int userId) throws IOException {
-        try{
-            this.contentType= fileUpload.getContentType();
-            this.fileData = fileUpload.getBytes();
-            this.filename = fileUpload.getOriginalFilename();
-            this.userId = userId;
-            this.fileSize = Long.toString(fileUpload.getSize());
-        }catch(IOException e){
-            throw e;
-        }
-    }
-    public File(int fileId, String filename, String contentType, String filesize, int userId, byte[] fileData) {
-        this.fileId = fileId;
-        this.filename = filename;
-        this.contentType = contentType;
-        this.fileSize = filesize;
-        this.userId = userId;
-        this.fileData = fileData;
+        this.contenttype = contenttype;
+        this.filesize = filesize;
+        this.userid = userid;
+        this.filedata = filedata;
     }
 
-    public int getFileId() {
-        return fileId;
+    public Integer getFileid() {
+        return fileid;
     }
 
-    public void setFileId(int fileId) {
-        this.fileId = fileId;
+    public void setFileid(Integer fileid) {
+        this.fileid = fileid;
     }
 
     public String getFilename() {
@@ -61,35 +35,36 @@ public class File {
         this.filename = filename;
     }
 
-    public String getContentType() {
-        return contentType;
+    public String getContenttype() {
+        return contenttype;
     }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
+    public void setContenttype(String contenttype) {
+        this.contenttype = contenttype;
     }
 
-    public String getFileSize() {
-        return fileSize;
+    public String getFilesize() {
+        return filesize;
     }
 
-    public void setFileSize(String fileSize) {
-        this.fileSize = fileSize;
+    public void setFilesize(String filesize) {
+        this.filesize = filesize;
     }
 
-    public int getUserId() {
-        return userId;
+    public Integer getUserid() {
+        return userid;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserid(Integer userid) {
+        this.userid = userid;
     }
 
-    public byte[] getFileData() {
-        return fileData;
+    public byte[] getFiledata() {
+        return filedata;
     }
 
-    public void setFileData(byte[] fileData) {
-        this.fileData = fileData;
+    public void setFiledata(byte[] filedata) {
+        this.filedata = filedata;
     }
+
 }

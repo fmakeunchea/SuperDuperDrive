@@ -1,51 +1,41 @@
 package com.udacity.jwdnd.course1.cloudstorage.services;
 
 import com.udacity.jwdnd.course1.cloudstorage.mappers.FileMapper;
-import com.udacity.jwdnd.course1.cloudstorage.models.File;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.udacity.jwdnd.course1.cloudstorage.models.File;import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.List;
 
 @Service
 public class FileService {
     private FileMapper fileMapper;
-    public final static String TAG_ = "FileService";
 
-    @Autowired
     public FileService(FileMapper fileMapper) {
+        super();
         this.fileMapper = fileMapper;
     }
 
-    public int addFile(MultipartFile fileUpload, int userId) throws IOException{
-        File file = new File(fileUpload, userId);
-        //log.debug(TAG_ +  "->  file detail check:  " + file.toString());
+    public boolean isFileNameAvailable(String filename) {
+        return fileMapper.getFileByName(filename) == null;
+
+    }
+
+    public File getFile(Integer fileid) {
+        return fileMapper.getFileById(fileid);
+    }
+
+    public File getFile(String filename) {
+        return fileMapper.getFileByName(filename);
+    }
+
+    public Integer addFile(File file) {
         return fileMapper.insert(file);
     }
 
-    public List<File> getFilesByUserId(int userId){
-        return fileMapper.getAll(userId);
+    public void deleteFile(Integer fileid) {
+        fileMapper.delete(fileid);
     }
 
-    public int updateFile(MultipartFile fileUpload, int userId, int fileId) throws IOException {
-        File file = new File(fileUpload, userId);
-        file.setFileId(fileId);
-        return fileMapper.update(file);
+    public List<File> listAllFiles(Integer userid) {
+        return fileMapper.getAllFiles(userid);
     }
-
-    public int deleteFile(int fileId){
-        return fileMapper.delete(fileId);
-    }
-
-    public File getFile(int fileId){
-        return fileMapper.getItemByItemId(fileId);
-    }
-
-    public boolean isDuplicateFileName(int userId, String fileName){
-        return (fileMapper.isDuplicateFile(userId, fileName)!= null);
-    }
-
-    public int deleteAll(){ return fileMapper.deleteAll(); }
 }

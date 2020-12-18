@@ -10,32 +10,39 @@ import java.util.List;
 @Service
 public class NoteService {
     private final NoteMapper noteMapper;
-    public final static String TAG_ = "NoteService";
-
-    @Autowired
-    public NoteService(NoteMapper noteMapper) {
+    private UserService userService;
+    public NoteService(NoteMapper noteMapper, UserService userService) {
+        super();
         this.noteMapper = noteMapper;
-    }
-    public Note getSingleNoteByNoteId(int noteId){
-        return this.noteMapper.getItemByItemId(noteId);
-    }
-    public List<Note> getAllUserNotes(int userId){
-        return this.noteMapper.getAll(userId);
+        this.userService = userService;
     }
 
-    public int editNoteByNoteObject(Note update){
-        return this.noteMapper.update(update);
+    public Note getNote(Integer noteid) {
+        return noteMapper.getNoteById(noteid);
     }
 
-    public int deleteNote(int noteId){
-        return this.noteMapper.delete(noteId);
+    public Note getNote(String notetitle) {
+        return noteMapper.getNoteByTitle(notetitle);
     }
 
-    public int deleteAll() {return this.noteMapper.deleteAll();}
-    public int addNote(Note add){
-        return this.noteMapper.insert(add);
+    public boolean isNoteTitleAvailable(String notetitle) {
+        return noteMapper.getNoteByTitle(notetitle) == null;
     }
 
+    public Integer addOrUpdateNote(Note note) {
+//
 
+        if (note.getNoteid() != null)
+            return noteMapper.update(note);
+        else
+            return noteMapper.insert(note);
+    }
 
+    public void deleteNote(Integer noteid) {
+        noteMapper.delete(noteid);
+    }
+
+    public List<Note> getAllNotes(Integer userid) {
+        return noteMapper.getAllNotes(userid);
+    }
 }

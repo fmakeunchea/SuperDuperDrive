@@ -1,56 +1,29 @@
 package com.udacity.jwdnd.course1.cloudstorage.models;
 
-import lombok.Data;
-import lombok.ToString;
-
-@Data
-@ToString(includeFieldNames = true)
 public class Credential {
-    private int credentialId;
+    private Integer credentialid;
     private String url;
     private String username;
     private String key;
     private String password;
-    private int userId;
+    private Integer userid;
 
-    public Credential(int credentialId, String url, String username, String key, String password, int userId) {
-        this.credentialId = credentialId;
+    public Credential (Integer credentialid, String url, String username, String key, String password, Integer userid) {
+        super();
+        this.credentialid = credentialid;
         this.url = url;
         this.username = username;
         this.key = key;
         this.password = password;
-        this.userId = userId;
+        this.userid = userid;
     }
 
-    public Credential(String url, String username, String key, String password, int userId) {
-        this.url = url;
-        this.username = username;
-        this.key = key;
-        this.password = password;
-        this.userId = userId;
+    public Integer getCredentialid() {
+        return credentialid;
     }
 
-    public Credential(int credentialId, String url, String username, String password, int userId) {
-        this.credentialId = credentialId;
-        this.url = url;
-        this.username = username;
-        this.password = password;
-        this.userId = userId;
-    }
-
-    public Credential(String url, String username, String password, int userId) {
-        this.url = url;
-        this.username = username;
-        this.password = password;
-        this.userId = userId;
-    }
-
-    public int getCredentialId() {
-        return credentialId;
-    }
-
-    public void setCredentialId(int credentialId) {
-        this.credentialId = credentialId;
+    public void setCredentialid(Integer credentialid) {
+        this.credentialid = credentialid;
     }
 
     public String getUrl() {
@@ -85,12 +58,12 @@ public class Credential {
         this.password = password;
     }
 
-    public int getUserId() {
-        return userId;
+    public Integer getUserid() {
+        return userid;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserid(Integer userid) {
+        this.userid = userid;
     }
+
 }
-

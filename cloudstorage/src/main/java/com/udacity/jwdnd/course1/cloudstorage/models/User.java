@@ -8,21 +8,22 @@ public class User {
     private String firstName;
     private String lastName;
 
-    public User(Integer userId, String username, String salt, String password, String firstName, String lastName) {
-        this.userId = userId;
+    public User(Integer userid, String username, String salt, String password, String firstname, String lastname) {
+        super();
+        this.userId = userid;
         this.username = username;
         this.salt = salt;
         this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.firstName = firstname;
+        this.lastName = lastname;
     }
 
-    public Integer getUserId() {
+    public Integer getUserid() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUserid(Integer userid) {
+        this.userId = userid;
     }
 
     public String getUsername() {
@@ -49,19 +50,19 @@ public class User {
         this.password = password;
     }
 
-    public String getFirstName() {
+    public String getFirstname() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setFirstname(String firstname) {
+        this.firstName = firstname;
     }
 
-    public String getLastName() {
+    public String getLastname() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setLastname(String lastname) {
+        this.lastName = lastname;
     }
 }

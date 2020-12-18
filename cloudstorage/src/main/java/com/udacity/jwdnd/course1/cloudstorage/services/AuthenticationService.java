@@ -16,6 +16,7 @@ public class AuthenticationService implements AuthenticationProvider {
     private HashService hashService;
 
     public AuthenticationService(UserMapper userMapper, HashService hashService) {
+        super();
         this.userMapper = userMapper;
         this.hashService = hashService;
     }
@@ -26,6 +27,7 @@ public class AuthenticationService implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         User user = userMapper.getUser(username);
+
         if (user != null) {
             String encodedSalt = user.getSalt();
             String hashedPassword = hashService.getHashedValue(password, encodedSalt);
@@ -41,4 +43,5 @@ public class AuthenticationService implements AuthenticationProvider {
     public boolean supports(Class<?> authentication) {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
+
 }

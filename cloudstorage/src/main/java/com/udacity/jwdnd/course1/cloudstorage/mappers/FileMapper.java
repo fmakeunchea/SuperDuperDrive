@@ -6,47 +6,20 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface FileMapper extends Condition {
-    String getFilesByUserId ="SELECT * FROM FILES WHERE  userid= #{userId}";
-    String insertFile = "INSERT INTO FILES (filename, contenttype, filesize, userid, filedata) " +
-            "VALUES(#{filename}, #{contentType}, #{fileSize}, #{userId}, #{fileData})";
-    String deleteFileByNoteId = "DELETE FROM FILES WHERE fileId = #{fileId}";
-    String getFileByFileId = "SELECT * FROM FILES WHERE fileId=#{fileId}";
-    String updateFileByNoteObject =  "UPDATE FILES SET " +
-            "filename = #{filename}, " +
-            "filedata = #{fileData}, " +
-            "contenttype = #{contentType}, " +
-            "filesize = #{fileSize} , " +
-            "userid = #{userId} " +
-            "WHERE fileId = #{fileId}";
-    String duplicateFile = "SELECT * FROM FILES WHERE  userid= #{userId} AND filename = #{filename}";
+public interface FileMapper {
+    @Select("SELECT * FROM FILES WHERE fileid = #{fileid}")
+    File getFileById(Integer fileid);
 
-    String deleteAll = "DELETE FROM FILES";
+    @Select("SELECT * FROM FILES WHERE filename = #{filename}")
+    File getFileByName(String filename);
 
+    @Select("SELECT * FROM FILES WHERE userid = #{userid}")
+    List<File> getAllFiles(Integer userid);
 
-    @Select(duplicateFile)
-    File isDuplicateFile(int userId, String filename);
+    @Insert("INSERT INTO FILES (filename,contenttype,filesize,userid,filedata) VALUES (#{filename},#{contenttype},#{filesize},#{userid},#{filedata})")
+    @Options(useGeneratedKeys = true, keyProperty = "fileid")
+    Integer insert(File file);
 
-    @Delete(deleteAll)
-    int deleteAll();
-
-    @Delete(deleteFileByNoteId)
-    int delete(Integer itemId);
-
-    @Select(getFilesByUserId)
-    List<File> getAll(Integer userId);
-
-    @Select(getFileByFileId)
-    File getItemByItemId(Integer fileId);
-
-    @Override
-    @Insert(insertFile)
-    @Options(useGeneratedKeys = true, keyProperty = "fileId")
-    int insert(Object add);
-
-    @Override
-    @Update(updateFileByNoteObject)
-    int update(Object update);
-
-
+    @Delete("DELETE FROM FILES WHERE fileid = #{fileid}")
+    Integer delete(Integer fileid);
 }

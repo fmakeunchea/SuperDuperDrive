@@ -1,78 +1,51 @@
 package com.udacity.jwdnd.course1.cloudstorage.controllers;
 
-import com.udacity.jwdnd.course1.cloudstorage.models.Note;
-import com.udacity.jwdnd.course1.cloudstorage.models.NoteForm;
-import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpSession;
-
-@Slf4j
+import com.udacity.jwdnd.course1.cloudstorage.models.Note;
+import com.udacity.jwdnd.course1.cloudstorage.models.User;
+import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
+import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 @Controller
-@RequestMapping("/note")
 public class NoteController {
+    private NoteService noteService;
+    private UserService userService;
 
-    public final static String TAG_ = "NoteController";
-    private final NoteService noteService;
-
-    @Autowired
-    public NoteController(NoteService noteService) {
+    public NoteController(NoteService noteService, UserService userService) {
+        super();
         this.noteService = noteService;
+        this.userService = userService;
     }
 
-    @PutMapping("/add")
-    public String postNote(NoteForm noteForm, Model model, HttpSession session){
-        //log.debug(TAG_ + "-> add method");
+    @PostMapping("/noteUpload")
+    public String noteUpload(@ModelAttribute("formNote") Note note, Model model, Authentication auth) {
 
-        int userId = (int)session.getAttribute("userId");
-        String errorMsgstr = "";
-        if(noteForm.getNoteId()==null || noteForm.getNoteId().equals("")){
-          //  log.debug(TAG_ + "-> add new note method");
-            Note note = new Note(noteForm.getNoteTitle(), noteForm.getNoteDescription(), userId);
-            int addRow = this.noteService.addNote(note);
-            if(addRow == 1){
-              //  log.debug(TAG_ +  "-> add new note success");
-                model.addAttribute("successResult", true);
-            }else{
-               //log.debug(TAG_ +  "-> add new note failed");
-                model.addAttribute("errorResult", true);
-                errorMsgstr = "New note failed to add";
-                model.addAttribute("errorResultMessage", errorMsgstr);
-            }
-        }else{
-            //log.debug(TAG_ + " update/edit note method");
-            Note note = new Note(Integer.parseInt(noteForm.getNoteId()), noteForm.getNoteTitle(), noteForm.getNoteDescription(), userId);
-            int updateRow = this.noteService.editNoteByNoteObject(note);
-            if(updateRow == 1){
-                model.addAttribute("successResult", true);
-               // log.debug(TAG_ +  "-> update/edit note success");
-            }else{
-                model.addAttribute("errorResult", true);
-               // log.debug(TAG_ +  "-> update/edit note failed");
-                errorMsgstr = "Note failed to update/edit";
-                model.addAttribute("errorResultMessage", errorMsgstr);
-            }
+        User user = userService.getUser(auth.getName());
+        note.setUserid(user.getUserid());
+
+        if (!noteService.isNoteTitleAvailable(note.getNotetitle()))
+            model.addAttribute("error", "Note of same title already exists!");
+        else {
+            Integer x = noteService.addOrUpdateNote(note);
+            if (x > 0)
+                model.addAttribute("success", true);
+            else
+                model.addAttribute("success", false);
         }
+
         return "result";
     }
 
-    @GetMapping("/delete")
-    public String deleteNote(@RequestParam(name="noteId") String noteId, Model model){
-        //log.debug(TAG_ +  "-> delete method with noteId: " + noteId);
-        int delRow = this.noteService.deleteNote(Integer.parseInt(noteId));
-        if(delRow == 1){
-            model.addAttribute("successResult", true);
-        }else{
-            model.addAttribute("errorResult", true);
-        }
+    @GetMapping("/noteDelete")
+    public String noteDelete(@RequestParam Integer noteid, Model model) {
+        noteService.deleteNote(noteid);
+        model.addAttribute("success", true);
         return "result";
     }
-
 }

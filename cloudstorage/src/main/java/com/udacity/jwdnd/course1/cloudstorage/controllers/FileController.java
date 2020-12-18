@@ -1,126 +1,68 @@
 package com.udacity.jwdnd.course1.cloudstorage.controllers;
 
-import com.udacity.jwdnd.course1.cloudstorage.models.File;
-import com.udacity.jwdnd.course1.cloudstorage.models.FileForm;
-import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
-import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.IOException;
+
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import com.udacity.jwdnd.course1.cloudstorage.models.File;
+import com.udacity.jwdnd.course1.cloudstorage.models.User;
+import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
+import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 
-@Slf4j
 @Controller
-@RequestMapping("/file")
-public class FileController implements HandlerExceptionResolver {
-    public final static String TAG_ = "FileController";
-    private final FileService fileService;
+public class FileController {
+    private FileService fileService;
+    private UserService userService;
 
-    @Autowired
     public FileController(FileService fileService, UserService userService) {
+        super();
         this.fileService = fileService;
+        this.userService = userService;
     }
 
+    @PostMapping("/fileUpload")
+    public String fileUpload(@RequestParam("fileUpload") MultipartFile file, Model model, Authentication auth)
+            throws IOException {
+        User user = userService.getUser(auth.getName());
+        File currFile = new File(null, file.getOriginalFilename(), file.getContentType(),
+                Long.toString(file.getSize()), user.getUserid(), file.getBytes());
 
-    @PostMapping("/add")
-    public String postFile(FileForm fileForm, Model model, HttpSession session) {
-       // log.debug(TAG_ + "-> add method");
-        String errorMsgStr = "";
-        int userId = (int) session.getAttribute("userId");
-        if (fileForm.getFileId() == null || fileForm.getFileId().equals("")) {
-            //log.debug(TAG_ + "-> add new file method");
-            if (!this.fileService.isDuplicateFileName(userId, fileForm.getFileEntity().getOriginalFilename())) {
-                if (fileForm.getFileEntity().getOriginalFilename() == null || fileForm.getFileEntity().getOriginalFilename().equals("")) {
-                   // log.debug(TAG_ + "-> add new file method the file is null");
-                    errorMsgStr = "Please select a file!";
-                    model.addAttribute("errorResultMessage", errorMsgStr);
-                    return "result";
-                }
-                int addRow = 1;
-                try {
-                    addRow = this.fileService.addFile(fileForm.getFileEntity(), userId);
-                } catch (Exception e) {
-                    addRow = -1;
-                }
-                if (addRow != 1) {
-                  //  log.debug(TAG_ + "-> add new file failed");
-                    model.addAttribute("errorResult", true);
-                    errorMsgStr = "New file failed to add";
-                    model.addAttribute("errorResultMessage", errorMsgStr);
-                } else {
-                  //  log.debug(TAG_ + "-> add new file success");
-                    model.addAttribute("successResult", true);
-                }
-            } else {
-               // log.debug(TAG_ + "-> add new file failed");
-                model.addAttribute("errorResult", true);
-                errorMsgStr = "This file already exist";
-                model.addAttribute("errorResultMessage", errorMsgStr);
-            }
-
-        } else {
-           // log.debug(TAG_ + "-> update/edit file method");
-            int updateRow;
-            try {
-                updateRow = fileService.updateFile(fileForm.getFileEntity(), userId, Integer.parseInt(fileForm.getFileId()));
-            } catch (Exception e) {
-                updateRow = -1;
-            }
-            if (updateRow != 1) {
-                model.addAttribute("errorResult", true);
-                //log.debug(TAG_ + "-> update/edit file failed");
-                errorMsgStr = "File failed to update/edit";
-                model.addAttribute("errorResultMessage", errorMsgStr);
-
-            } else {
-                model.addAttribute("successResult", true);
-               // log.debug(TAG_ + "-> update/edit file success");
-            }
-        }
-        model.addAttribute("fileForm", new FileForm());
-        return "result";
-
-    }
-
-    @GetMapping("/delete")
-    public String deleteFile(@RequestParam(name = "fileId") String fileId, Model model) {
-        //log.debug(TAG_ + "-> Calling file controller delete method with fileId: " + fileId);
-        int delRow = this.fileService.deleteFile(Integer.parseInt(fileId));
-        if (delRow == 1) {
-            model.addAttribute("successResult", true);
-        } else {
-            model.addAttribute("errorResult", true);
+        if (file.isEmpty())
+            model.addAttribute("error", "No file chosen!");
+        else if (!fileService.isFileNameAvailable(currFile.getFilename()))
+            model.addAttribute("error", "File of same name already exists!");
+        else {
+            fileService.addFile(currFile);
+            model.addAttribute("success", true);
         }
         return "result";
     }
 
-    @GetMapping("/view")
-    public ResponseEntity<byte[]> viewFile(@RequestParam(name = "fileId") String fileId, Model model) {
-        File file = fileService.getFile(Integer.parseInt(fileId));
+    @GetMapping("/fileDownload")
+    public ResponseEntity<Resource> fileDownload(@RequestParam("filename") String filename, Model model) {
+        File currFile = fileService.getFile(filename);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-                .contentLength(file.getFileData().length)
-                .body(file.getFileData());
+
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + currFile.getFilename() + "\"")
+
+                .body(new ByteArrayResource(currFile.getFiledata()));
     }
 
-    @Override
-    public ModelAndView resolveException(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) {
-     //   log.debug(TAG_ + " file exceed max size limit");
-        ModelAndView modelAndView = new ModelAndView("result");
-        if (e instanceof MaxUploadSizeExceededException) {
-            modelAndView.getModel().put("errorResultMessage", "File size exceeds limit!");
-        }
-        return modelAndView;
+    @GetMapping("/fileDelete")
+    public String fileDelete(Model model, @RequestParam Integer fileid) {
+        fileService.deleteFile(fileid);
+        model.addAttribute("success", true);
+        return "result";
     }
 }

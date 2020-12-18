@@ -2,8 +2,8 @@ package com.udacity.jwdnd.course1.cloudstorage.services;
 
 import com.udacity.jwdnd.course1.cloudstorage.mappers.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.models.Credential;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.udacity.jwdnd.course1.cloudstorage.models.User;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -11,57 +11,61 @@ import java.util.Base64;
 import java.util.List;
 
 @Service
-@Slf4j
 public class CredentialService {
-    public final static String TAG_ = "CredentialServic";
-    private final UserService userService;
-    private final CredentialMapper credentialMapper;
-    private final EncryptionService encryptionService;
+    private CredentialMapper credentialMapper;
+    private EncryptionService encryptionService;
+    private UserService userService;
 
-    @Autowired
-    public CredentialService(UserService userService, CredentialMapper credentialMapper, EncryptionService encryptionService) {
-        this.userService = userService;
+    public CredentialService(CredentialMapper credentialMapper, EncryptionService encryptionService,
+                             UserService userService) {
+        super();
         this.credentialMapper = credentialMapper;
         this.encryptionService = encryptionService;
+        this.userService = userService;
     }
 
-    public List<Credential> getAllUserCredentials(int userId){
-        return this.credentialMapper.getAll(userId);
+    public Credential getCredential(Integer credentialid) {
+        return credentialMapper.getCredentialById(credentialid);
     }
 
-    public Credential getCredentialById(int credentialId){
-        Credential credential = this.credentialMapper.getItemByItemId(credentialId);
-        return credential;
-
-    }
-    public int editCredential(Credential credential){
-        if(credential.getKey()==null || credential.getKey().equals("")){
-            String key = this.credentialMapper.getKey(credential.getCredentialId());
-
-            credential.setPassword(encryptionService.encryptValue(credential.getPassword(),key));
-        }
-        return this.credentialMapper.update(credential);
+    public Credential getCredential(String url) {
+        return credentialMapper.getCredentialByUrl(url);
     }
 
-    public int deleteCredential(int credentialId){
-        return this.credentialMapper.delete(credentialId);
+    public boolean isCredentialUrlAvailable(String url) {
+        return credentialMapper.getCredentialByUrl(url) == null;
     }
 
-    public int deleteAll(){
-        return this.credentialMapper.deleteAll();
+    public String getDecryptedPassword(Integer credentialid, Authentication auth) {
+        Credential credential = credentialMapper.getCredentialById(credentialid);
+        return encryptionService.decryptValue(credential.getPassword(), credential.getKey());
     }
 
-    public int addCredential(Credential add){
+    public Integer addOrUpdateCredential(Credential credential, Authentication auth) {
+        User user = userService.getUser(auth.name());
+        //User user = userService.getUser(auth.getName());
+
         SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-        String encodedSalt = Base64.getEncoder().encodeToString(salt);
-        String password = add.getPassword();
-        String encyptpassword = this.encryptionService.encryptValue(password, encodedSalt);
-        add.setKey(encodedSalt);
-        add.setPassword(encyptpassword);
-        return this.credentialMapper.insert(add);
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
+        credential.setPassword(encryptedPassword);
+        credential.setKey(encodedKey);
+        credential.setUserid(user.getUserid());
+
+        if (credential.getCredentialid() != null)
+            return this.credentialMapper.update(credential);
+        else
+            return this.credentialMapper.insert(credential);
     }
 
+    public void deleteCredential(Integer credentialid) {
+        credentialMapper.delete(credentialid);
+    }
+
+    public List<Credential> getAllCredentials(Integer userid) {
+        return credentialMapper.getAllCredentials(userid);
+    }
 }
 

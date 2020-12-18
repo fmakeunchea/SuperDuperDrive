@@ -8,38 +8,23 @@ import java.util.List;
 
 
 @Mapper
-public interface NoteMapper extends Condition{
+public interface NoteMapper {
+    @Select("SELECT * FROM NOTES WHERE noteid = #{noteid}")
+    Note getNoteById(Integer noteid);
 
-    String getNotesByUserId ="SELECT * FROM NOTES WHERE  userid= #{userId}";
-    String insertNote = "INSERT INTO NOTES (notetitle, notedescription, userid) VALUES(#{noteTitle}, #{noteDescription}, #{userId})";
-    String deleteNoteByNoteId = "DELETE FROM NOTES WHERE noteid = #{noteId}";
-    String deleteAll = "DELETE NOTES";
-    String getNoteByNoteId = "SELECT * FROM NOTES WHERE noteid=#{noteId}";
-    String updateNoteByNoteObject =    "UPDATE NOTES SET " +
-            "notetitle = #{noteTitle}, " +
-            "notedescription = #{noteDescription} " +
-            "WHERE noteid = #{noteId}";
+    @Select("SELECT * FROM NOTES WHERE notetitle = #{notetitle}")
+    Note getNoteByTitle(String notetitle);
 
-    @Delete(deleteNoteByNoteId)
-    int delete(Integer itemId);
+    @Select("SELECT * FROM NOTES WHERE userid = #{userid}")
+    List<Note> getAllNotes(Integer userid);
 
-    @Delete(deleteAll)
-    int deleteAll();
+    @Insert("INSERT INTO NOTES (notetitle,notedescription,userid) VALUES (#{notetitle},#{notedescription},#{userid})")
+    @Options(useGeneratedKeys = true, keyProperty = "noteid")
+    Integer insert(Note note);
 
-    @Select(getNotesByUserId)
-    List<Note> getAll(Integer userId);
+    @Update("UPDATE NOTES SET notetitle = #{notetitle}, notedescription = #{notedescription} WHERE userid = #{userid}")
+    Integer update(Note note);
 
-    @Insert(insertNote)
-    @Options(useGeneratedKeys = true, keyProperty = "noteId")
-    int insert(Object add);
-
-    @Select(getNoteByNoteId)
-    Note getItemByItemId(Integer noteId);
-
-    @Update(updateNoteByNoteObject)
-    int update(Object update);
-
-
-
+    @Delete("DELETE FROM NOTES WHERE noteid = #{noteid}")
+    Integer delete(Integer noteid);
 }
-

@@ -1,8 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.services;
 
-import com.udacity.jwdnd.course1.cloudstorage.models.Credential;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ldap.embedded.EmbeddedLdapProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.*;
@@ -11,15 +10,9 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-
 @Service
-
 public class EncryptionService {
-    public final static String TAG_ = "EncryptionService";
-
-    @Autowired
-    public EncryptionService() {
-    }
+    private Logger logger = LoggerFactory.getLogger(EncryptionService.class);
 
     public String encryptValue(String data, String key) {
         byte[] encryptedValue = null;
@@ -31,7 +24,7 @@ public class EncryptionService {
             encryptedValue = cipher.doFinal(data.getBytes("UTF-8"));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException e) {
-
+            logger.error(e.getMessage());
         }
 
         return Base64.getEncoder().encodeToString(encryptedValue);
@@ -47,30 +40,9 @@ public class EncryptionService {
             decryptedValue = cipher.doFinal(Base64.getDecoder().decode(data));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException
                 | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-
+            logger.error(e.getMessage());
         }
 
         return new String(decryptedValue);
-    }
-
-
-    public String decryptPassword(Credential credential){
-        byte[] decryptedValue = null;
-
-        try {
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            SecretKey secretKey = new SecretKeySpec(credential.getKey().getBytes(), "AES");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            decryptedValue = cipher.doFinal(Base64.getDecoder().decode(credential.getPassword()));
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException
-                | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-
-        }
-
-        return new String(decryptedValue);
-    }
-
-    public String testing(){
-        return "Testing";
     }
 }

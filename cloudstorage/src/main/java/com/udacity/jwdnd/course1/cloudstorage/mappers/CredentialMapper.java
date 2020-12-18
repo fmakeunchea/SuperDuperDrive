@@ -6,47 +6,23 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface CredentialMapper extends Condition {
+public interface CredentialMapper {
+    @Select("SELECT * FROM CREDENTIALS WHERE credentialid = #{credentialid}")
+    Credential getCredentialById(Integer credentialid);
 
-    String getGetCredentialByUserId ="SELECT * FROM CREDENTIALS WHERE  userid= #{userId}";
-    String getCredentialById = "SELECT * FROM CREDENTIALS WHERE  credentialid= #{credentialId}";
-    String insertByUserObj = "INSERT INTO CREDENTIALS (url, username, key, password, userid) " +
-            "VALUES(#{url}, #{username}, #{key}, #{password}, #{userId})";
-    String deleteById = "DELETE FROM CREDENTIALS WHERE credentialid = #{credentialId}";
-    String deleteAll = "DELETE FROM CREDENTIALS";
-    String updateNoteByCredentialObject =    "UPDATE CREDENTIALS SET " +
-            "url = #{url}, " +
-            "username = #{username}, " +
-            "password = #{password} " +
-            "WHERE credentialid = #{credentialId}";
-    String getKeyByUserIdAndCredentialId = "SELECT key FROM CREDENTIALS WHERE  credentialid= #{credentialId}";
+    @Select("SELECT * FROM CREDENTIALS WHERE url = #{url}")
+    Credential getCredentialByUrl(String url);
 
-    @Override
-    @Delete((deleteAll))
-    int delete(Integer itemId);
+    @Select("SELECT * FROM CREDENTIALS WHERE userid = #{userid}")
+    List<Credential> getAllCredentials(Integer userid);
 
-    @Override
-    @Select(getGetCredentialByUserId)
-    List<Credential> getAll(Integer userId);
+    @Insert("INSERT INTO CREDENTIALS (url,username,key,password,userid) VALUES (#{url},#{username},#{key},#{password},#{userid})")
+    @Options(useGeneratedKeys = true, keyProperty = "credentialid")
+    Integer insert(Credential credential);
 
-    @Override
-    @Delete(deleteAll)
-    int deleteAll();
+    @Update("UPDATE CREDENTIALS SET url = #{url}, username = #{username}, password = #{password} WHERE userid = #{userid}")
+    Integer update(Credential credential);
 
-    @Override
-    @Select(getCredentialById)
-    Credential getItemByItemId(Integer itemId);
-
-    @Select(getKeyByUserIdAndCredentialId)
-    String getKey(int credentialId);
-
-    @Override
-    @Insert(insertByUserObj)
-    @Options(useGeneratedKeys = true, keyProperty = "credentialId")
-    int insert(Object add);
-
-    @Override
-    @Update(updateNoteByCredentialObject)
-    int update(Object update);
-
+    @Delete("DELETE FROM CREDENTIALS WHERE credentialid = #{credentialid}")
+    Integer delete(Integer credentialid);
 }

@@ -8,10 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/login")
 public class LoginController {
-
-        public final static String TAG_ = "LoginController";
-        @GetMapping()
-        public String loginView() {
-            return "login";
-        }
+    @GetMapping()
+    public String loginView() {
+        return "login";
     }
+}
